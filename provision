@@ -1,0 +1,45 @@
+resource "aws_instance" "server1"{
+ami = var.ami_id
+instance_type = var.instance_type
+
+provisioner "remote-exec" {
+  inline = [
+     "sudo yum install httpd",
+     "sudo systemctl start httpd",
+     "sudo systemctl enable httpd",
+     "echo 'Rnon' > /var/www/html/index.html"
+  ]
+}
+connection {
+  type = "ssh"
+  host = self.public_ip
+  user = "Terra-user"
+  private_key = file(var.private_key_location)
+}
+
+tags = {
+Name = "my terraform instance"
+}
+
+}
+
+resource "aws_key_pair" "key_p"{
+key_name="my_key_p"
+public_key= var.public_key
+}
+
+resource "aws_security_group" "my_SG"{
+name = "my_SG"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = var.vpc_id
+
+ ingress {
+    description      = "TLS from VPC"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+  ingress {
+ec2.tf [unix] (05:31 03/04/2022)                                                                                                                      6,12 Top
+"ec2.tf" [unix] 72L, 1389B
